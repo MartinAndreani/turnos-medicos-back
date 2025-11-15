@@ -1,35 +1,39 @@
 import os
-import sys
 from logging.config import fileConfig
 
 from sqlalchemy import engine_from_config, pool
 from alembic import context
 
-# --- IMPORTAR SETTINGS Y MODELOS ---
-BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-sys.path.append(os.path.join(BASE_DIR, "app"))
+# Importa Base de tus modelos
+from app.db.base import Base
 
-from app.core.config import settings
-from app.db.database import Base
-from app.db.models import *   # importa automáticamente todos los modelos
+# Para autogenerate
+target_metadata = Base.metadata
 
-# Alembic Config
+# Alembic config
 config = context.config
 
-# Override sqlalchemy.url con el valor del .env
-config.set_main_option("sqlalchemy.url", settings.DATABASE_URL)
+# Cargar .env manualmente si es necesario
+from dotenv import load_dotenv
+load_dotenv()
+
+# Insertar la URL de la BD usando variables de entorno
+DATABASE_URL = os.getenv("DATABASE_URL")
+
+if not DATABASE_URL:
+    raise RuntimeError("No se encontró DATABASE_URL en el entorno.")
+
+config.set_main_option("sqlalchemy.url", DATABASE_URL)
 
 # Logging
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
-# Metadata de los modelos (NECESARIO para autogenerate)
-target_metadata = Base.metadata
-
 
 def run_migrations_offline() -> None:
-    """Run migrations in 'offline' mode."""
+    """Run migrations in offline mode."""
     url = config.get_main_option("sqlalchemy.url")
+
     context.configure(
         url=url,
         target_metadata=target_metadata,
@@ -42,9 +46,9 @@ def run_migrations_offline() -> None:
 
 
 def run_migrations_online() -> None:
-    """Run migrations in 'online' mode."""
+    """Run migrations in online mode."""
     connectable = engine_from_config(
-        config.get_section(config.config_ini_section),
+        config.get_section(config.config_ini_section, {}),
         prefix="sqlalchemy.",
         poolclass=pool.NullPool,
     )
@@ -52,7 +56,7 @@ def run_migrations_online() -> None:
     with connectable.connect() as connection:
         context.configure(
             connection=connection,
-            target_metadata=target_metadata,
+            target_metadata=target_metadata
         )
 
         with context.begin_transaction():

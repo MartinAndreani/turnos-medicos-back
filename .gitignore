@@ -1,2 +1,33 @@
-/.env
-/.venv
+# Entornos virtuales y configuraciones
+.env
+.venv
+**venv
+env
+
+# Logs
+logs/
+*.log
+**log
+
+# Pycache y metadatos de IDEs
+**/__pycache__/
+.idea/*
+*.pyc
+*.pyo
+*.pyd
+
+# PyInstaller
+dist/
+build/
+agente_local/
+
+# Archivos CSV (excepto el cuestionario)
+*.csv
+!gateway/src/static/preguntas_particular.csv
+
+# Archivos PDF generados
+!gateway/src/static/Baremos - Decreto 196 disp 54-55 anexo I.pdf
+!tramite/src/static/licencia_base.pdf
+
+# Archivo de simulación (no versionar)
+simulacion_token.py
