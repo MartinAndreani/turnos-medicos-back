@@ -2,16 +2,15 @@ import uuid
 from sqlalchemy import String, Boolean, ForeignKey
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 from app.db.database import Base
+from app.db.mixins import TimestampMixin
 
-class Consultorio(Base):
+class Consultorio(TimestampMixin, Base):
     __tablename__ = "consultorios"
 
     id_consultorio: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
     numero_consultorio: Mapped[str] = mapped_column(String, nullable=False)
-    piso: Mapped[str | None]
-    id_especialidad: Mapped[uuid.UUID] = mapped_column(ForeignKey("especialidades.id_especialidad"), nullable=False)
+    piso: Mapped[str | None] = mapped_column(String)
     activo: Mapped[bool] = mapped_column(Boolean, default=True)
 
-    especialidad = relationship("Especialidad", back_populates="consultorios")
-    disponibilidades = relationship("DisponibilidadConsultorio", back_populates="consultorio")
+    asignaciones = relationship("AsignacionConsultorio", back_populates="consultorio")
     turnos = relationship("Turno", back_populates="consultorio")

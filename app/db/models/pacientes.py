@@ -1,22 +1,27 @@
 import uuid
-from sqlalchemy import String, Boolean, Date
+from sqlalchemy import ForeignKey, String, Boolean, Date
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 
 from app.db.database import Base
+from app.db.mixins import TimestampMixin
 
-class Paciente(Base):
+class Paciente(TimestampMixin, Base):
     __tablename__ = "pacientes"
 
+    
     id_paciente: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
+    id_usuario: Mapped[uuid.UUID | None] = mapped_column(
+        ForeignKey("usuarios.id_usuario"), unique=True
+    )
     dni: Mapped[str] = mapped_column(String, unique=True, nullable=False)
     nombre: Mapped[str] = mapped_column(String, nullable=False)
     apellido: Mapped[str] = mapped_column(String, nullable=False)
-    fecha_nacimiento: Mapped[Date] = mapped_column(Date)
-
-    direccion: Mapped[str | None]
-    email: Mapped[str | None] = mapped_column(String, unique=True)
-    telefono: Mapped[str | None]
+    fecha_nacimiento: Mapped[Date | None] = mapped_column(Date, nullable=False)
+    direccion: Mapped[str | None] = mapped_column(String, nullable=False)
+    telefono: Mapped[str | None] = mapped_column(String, nullable=False)
     activo: Mapped[bool] = mapped_column(Boolean, default=True)
 
+    usuario = relationship("Usuario")
     turnos = relationship("Turno", back_populates="paciente")
-    historias = relationship("HistoriaClinica", back_populates="paciente")
+    historias_clinicas = relationship("HistoriaClinica", back_populates="paciente")
+

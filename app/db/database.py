@@ -6,7 +6,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from app.core.config import settings
 # ---- Clase Singleton para la base de datos ---- # 
 class Database:
-    _intance = None
+    _instance = None
     _initialized = False
     
     def __new__(cls, database_url: str):

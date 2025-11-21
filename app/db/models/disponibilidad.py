@@ -1,22 +1,23 @@
 from datetime import time
 import uuid
-from sqlalchemy import ForeignKey, Integer, Time, UniqueConstraint
+from sqlalchemy import Date, ForeignKey, Integer, String, Time, UniqueConstraint
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 from app.db.database import Base
+from app.db.mixins import TimestampMixin
 
-class DisponibilidadConsultorio(Base):
+class DisponibilidadConsultorio(TimestampMixin, Base):
     __tablename__ = "disponibilidad_consultorios"
 
-    id_disponibilidad: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
-    id_medico: Mapped[uuid.UUID] = mapped_column(ForeignKey("medicos.id_medico"), nullable=False)
-    id_consultorio: Mapped[uuid.UUID] = mapped_column(ForeignKey("consultorios.id_consultorio"), nullable=False)
-    dia_semana: Mapped[int] = mapped_column(Integer, nullable=False)
-    hora_inicio: Mapped[time] = mapped_column(Time, nullable=False)
-    hora_fin: Mapped[time] = mapped_column(Time, nullable=False)
+    id_asignacion: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
+    id_medico: Mapped[uuid.UUID] = mapped_column(ForeignKey("medicos.id_medico"))
+    id_consultorio: Mapped[uuid.UUID] = mapped_column(ForeignKey("consultorios.id_consultorio"))
+    fecha_inicio: Mapped[Date] = mapped_column(Date, nullable=False)
+    fecha_fin: Mapped[Date] = mapped_column(Date, nullable=False)
+    jornada: Mapped[str] = mapped_column(String, nullable=False)
 
     __table_args__ = (
-        UniqueConstraint("id_consultorio", "dia_semana", "hora_inicio"),
+        UniqueConstraint("id_consultorio", "jornada", "fecha_inicio", "fecha_fin"),
     )
 
-    medico = relationship("Medico", back_populates="disponibilidades")
-    consultorio = relationship("Consultorio", back_populates="disponibilidades")
+    medico = relationship("Medico", back_populates="asignaciones")
+    consultorio = relationship("Consultorio", back_populates="asignaciones")

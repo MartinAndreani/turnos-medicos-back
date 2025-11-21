@@ -2,14 +2,21 @@
 
 
 import uuid
-from app.db.database import Base
-from sqlalchemy.orm import Mapped, mapped_column
 
-class RolXUsuario(Base):
+from sqlalchemy import ForeignKey
+from app.db.database import Base
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+
+from app.db.mixins import TimestampMixin
+
+class RolXUsuario(TimestampMixin, Base):
     __tablename__ = "roles_x_usuarios"
     
-    id_roles_x_usuario: Mapped[uuid.UUID] = mapped_column(primary_key = True, default=uuid.uuid4, nullable=False)
-    id_usuario: Mapped[uuid.UUID] = mapped_column(nullable=False)
-    id_rol: Mapped[uuid.UUID] = mapped_column(nullable=False)
+    id_roles_x_usuario: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
+    id_usuario: Mapped[uuid.UUID] = mapped_column(ForeignKey("usuarios.id_usuario"))
+    id_rol: Mapped[uuid.UUID] = mapped_column(ForeignKey("roles.id_rol"))
+
     
+    usuario = relationship("Usuario", back_populates="roles_x_usuarios")
+    rol = relationship("Rol", back_populates="roles_x_usuarios")
     
