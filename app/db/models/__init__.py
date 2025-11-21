@@ -7,3 +7,5 @@ from .disponibilidad import DisponibilidadConsultorio
 from .turnos import Turno
 from .historias_clinicas import HistoriaClinica
 from .recetas import Receta
+from .usuarios import Usuario
+from .roles import Rol

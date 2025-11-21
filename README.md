@@ -66,12 +66,6 @@ Con los comandos mencionados anteriormente se pueden realizar las totalidad de l
 
 **1.** Clonar el repositorio.
 
-## CAMBIAR LA URL DEL REPOSITORIO
-
-```bash
-   git clone https://git.dtec.cordoba.gov.ar/licencias/licencias-api.git
-```
-
 **2.** Pararse dentro del directorio principal (ya teniendo _python_ instalado) y ejecutar el siguiente comando para crear un entorno virtual:
 
 ```bash
