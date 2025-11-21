@@ -3,7 +3,7 @@
 
 from datetime import datetime
 import uuid
-from sqlalchemy import DateTime, ForeignKey, String, JSON
+from sqlalchemy import DateTime, ForeignKey, String, text
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 from app.db.database import Base
 from app.db.mixins import TimestampMixin
@@ -13,7 +13,7 @@ class HistorialEvento(TimestampMixin, Base):
     
     __tablename__ = "historial_eventos"
 
-    id_evento: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
+    id_evento: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4, server_default=text("gen_random_uuid()"))
     id_turno: Mapped[uuid.UUID] = mapped_column(ForeignKey("turnos.id_turno"))
     fecha_evento: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
     tipo_evento: Mapped[str] = mapped_column(String, nullable=False)

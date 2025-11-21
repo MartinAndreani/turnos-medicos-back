@@ -6,7 +6,7 @@ from alembic import context
 
 # Importa Base de tus modelos
 from app.db.base import Base
-
+from app.db.models import *
 # Para autogenerate
 target_metadata = Base.metadata
 

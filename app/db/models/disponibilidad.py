@@ -1,6 +1,6 @@
 from datetime import time
 import uuid
-from sqlalchemy import Date, ForeignKey, Integer, String, Time, UniqueConstraint
+from sqlalchemy import Date, ForeignKey, Integer, String, Time, UniqueConstraint, text
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 from app.db.database import Base
 from app.db.mixins import TimestampMixin
@@ -8,7 +8,7 @@ from app.db.mixins import TimestampMixin
 class DisponibilidadConsultorio(TimestampMixin, Base):
     __tablename__ = "disponibilidad_consultorios"
 
-    id_asignacion: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
+    id_asignacion: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4, server_default=text("gen_random_uuid()"))
     id_medico: Mapped[uuid.UUID] = mapped_column(ForeignKey("medicos.id_medico"))
     id_consultorio: Mapped[uuid.UUID] = mapped_column(ForeignKey("consultorios.id_consultorio"))
     fecha_inicio: Mapped[Date] = mapped_column(Date, nullable=False)

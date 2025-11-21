@@ -1,5 +1,5 @@
 import uuid
-from sqlalchemy import ForeignKey, String, Boolean, Date
+from sqlalchemy import ForeignKey, String, Boolean, Date, text
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 
 from app.db.database import Base
@@ -9,7 +9,7 @@ class Paciente(TimestampMixin, Base):
     __tablename__ = "pacientes"
 
     
-    id_paciente: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
+    id_paciente: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4, server_default=text("gen_random_uuid()"))
     id_usuario: Mapped[uuid.UUID | None] = mapped_column(
         ForeignKey("usuarios.id_usuario"), unique=True
     )
