@@ -2,6 +2,7 @@ from .agendas_medicos import AgendaMedico
 from .consultorios import Consultorio
 from .disponibilidad import DisponibilidadConsultorio
 from .especialidades import Especialidad
+from .estados_turnos import EstadoTurno
 from .historial_eventos import HistorialEvento
 from .historias_clinicas import HistoriaClinica
 from .medico_especialidad import MedicoEspecialidad
