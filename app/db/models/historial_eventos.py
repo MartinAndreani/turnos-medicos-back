@@ -9,7 +9,7 @@ from app.db.database import Base
 from app.db.mixins import TimestampMixin
 
 
-class HistorialEvento(TimestampMixin, Base):
+class HistorialEventoModel(TimestampMixin, Base):
     
     __tablename__ = "historial_eventos"
 
@@ -22,5 +22,5 @@ class HistorialEvento(TimestampMixin, Base):
     motivo: Mapped[str | None] = mapped_column(String, nullable=False)
 
 
-    turno = relationship("Turno")
-    usuario = relationship("Usuario")
+    turno = relationship("TurnoModel")
+    usuario = relationship("UsuarioModel")

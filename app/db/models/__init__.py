@@ -1,18 +1,18 @@
-from .agendas_medicos import AgendaMedico
-from .consultorios import Consultorio
-from .disponibilidad import DisponibilidadConsultorio
-from .especialidades import Especialidad
-from .estados_turnos import EstadoTurno
-from .historial_eventos import HistorialEvento
-from .historias_clinicas import HistoriaClinica
-from .medico_especialidad import MedicoEspecialidad
-from .medicos import Medico
-from .pacientes import Paciente
-from .recetas import Receta
-from .roles import Rol
-from .rolesxusuario import RolXUsuario
-from .turnos import Turno
-from .usuarios import Usuario
+from .agendas_medicos import AgendaMedicoModel
+from .consultorios import ConsultorioModel
+from .disponibilidad import DisponibilidadConsultorioModel
+from .especialidades import EspecialidadModel
+from .estados_turnos import EstadoTurnoModel
+from .historial_eventos import HistorialEventoModel
+from .historias_clinicas import HistoriaClinicaModel
+from .medico_especialidad import MedicoEspecialidadModel
+from .medicos import MedicoModel
+from .pacientes import PacienteModel
+from .recetas import RecetaModel
+from .roles import RolModel
+from .rolesxusuario import RolXUsuarioModel
+from .turnos import TurnoModel
+from .usuarios import UsuarioModel
 
 
 

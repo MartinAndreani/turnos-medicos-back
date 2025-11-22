@@ -7,7 +7,7 @@ from app.db.base import Base
 from app.db.mixins import TimestampMixin
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-class EstadoTurno(TimestampMixin,Base):
+class EstadoTurnoModel(TimestampMixin,Base):
     __tablename__ = "estados_turnos"
     
     id_estado_turno: Mapped[uuid.UUID] = mapped_column( primary_key=True, default=uuid.uuid4, server_default=text("gen_random_uuid()"))
@@ -16,4 +16,4 @@ class EstadoTurno(TimestampMixin,Base):
     activo: Mapped[bool] = mapped_column( nullable=False, default=True )
     
     
-    turnos = relationship("Turno", back_populates="estado_turno")
+    turnos = relationship("TurnoModel", back_populates="estado_turno")

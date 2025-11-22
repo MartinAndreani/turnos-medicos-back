@@ -5,7 +5,7 @@ from sqlalchemy.orm import relationship, Mapped, mapped_column
 from app.db.database import Base
 from app.db.mixins import TimestampMixin
 
-class Paciente(TimestampMixin, Base):
+class PacienteModel(TimestampMixin, Base):
     __tablename__ = "pacientes"
 
     
@@ -21,7 +21,7 @@ class Paciente(TimestampMixin, Base):
     telefono: Mapped[str | None] = mapped_column(String, nullable=False)
     activo: Mapped[bool] = mapped_column(Boolean, default=True)
 
-    usuario = relationship("Usuario")
-    turnos = relationship("Turno", back_populates="paciente")
-    historias_clinicas = relationship("HistoriaClinica", back_populates="paciente")
+    usuario = relationship("UsuarioModel")
+    turnos = relationship("TurnoModel", back_populates="paciente")
+    historias_clinicas = relationship("HistoriaClinicaModel", back_populates="paciente")
 

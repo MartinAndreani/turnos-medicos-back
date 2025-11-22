@@ -37,5 +37,5 @@ class Database:
 
 
 db_manager = Database(settings.DATABASE_URL)
-
+get_db = db_manager.get_session
 Base = declarative_base()

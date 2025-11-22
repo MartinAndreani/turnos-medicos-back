@@ -5,7 +5,7 @@ from sqlalchemy.orm import relationship, Mapped, mapped_column
 from app.db.database import Base
 from app.db.mixins import TimestampMixin
 
-class DisponibilidadConsultorio(TimestampMixin, Base):
+class DisponibilidadConsultorioModel(TimestampMixin, Base):
     __tablename__ = "disponibilidad_consultorios"
 
     id_asignacion: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4, server_default=text("gen_random_uuid()"))
@@ -19,5 +19,5 @@ class DisponibilidadConsultorio(TimestampMixin, Base):
         UniqueConstraint("id_consultorio", "jornada", "fecha_inicio", "fecha_fin"),
     )
 
-    medico = relationship("Medico", back_populates="asignaciones")
-    consultorio = relationship("Consultorio", back_populates="asignaciones")
+    medico = relationship("MedicoModel", back_populates="asignaciones")
+    consultorio = relationship("ConsultorioModel", back_populates="asignaciones")

@@ -4,7 +4,7 @@ from sqlalchemy.orm import relationship, Mapped, mapped_column
 from app.db.database import Base
 from app.db.mixins import TimestampMixin
 
-class Especialidad(TimestampMixin, Base):
+class EspecialidadModel(TimestampMixin, Base):
     __tablename__ = "especialidades"
 
     id_especialidad: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4, server_default=text("gen_random_uuid()"))
@@ -12,7 +12,7 @@ class Especialidad(TimestampMixin, Base):
     descripcion: Mapped[str | None] = mapped_column(Text)
 
     medicos = relationship(
-        "Medico",
+        "MedicoModel",
         secondary="medico_especialidad",
         back_populates="especialidades"
     )

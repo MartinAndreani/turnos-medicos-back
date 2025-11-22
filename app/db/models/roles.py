@@ -9,7 +9,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.mixins import TimestampMixin
 
-class Rol(TimestampMixin, Base):
+class RolModel(TimestampMixin, Base):
     __tablename__ = "roles"
     
     id_rol: Mapped[uuid.UUID] = mapped_column(primary_key = True, default=uuid.uuid4, nullable=False, server_default=text("gen_random_uuid()"))
@@ -18,4 +18,4 @@ class Rol(TimestampMixin, Base):
     activo: Mapped[bool] = mapped_column(default=True)
     
 
-    roles_x_usuarios = relationship("RolXUsuario", back_populates="rol")
+    roles_x_usuarios = relationship("RolXUsuarioModel", back_populates="rol")
