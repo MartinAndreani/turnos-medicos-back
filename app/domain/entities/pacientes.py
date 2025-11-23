@@ -2,10 +2,11 @@
 
 
 from typing import Optional
+import uuid
 
 
 class Paciente:
-    def __init__(self, id_paciente:str,
+    def __init__(self, id_paciente: uuid.UUID,
         dni:str,
         nombre:str,
         apellido:str,
@@ -13,7 +14,7 @@ class Paciente:
         direccion:Optional[str]=None,
         telefono:Optional[str]=None,
         activo:bool=True,
-        id_usuario: Optional[str]=None,    
+        id_usuario: Optional[uuid.UUID]=None,    
             ):
         
         self.id_paciente = id_paciente
