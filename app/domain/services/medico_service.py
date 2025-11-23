@@ -128,15 +128,4 @@ class MedicoService:
 
         medico.activar()
         return self.repo.save(medico)
-
-    def desactivar(self, id_medico: str) -> Medico:
-        """
-        Usa la lógica de dominio (método desactivar del Medico)
-        y persiste el cambio.
-        """
-        medico = self.repo.get_by_id(id_medico)
-        if not medico:
-            raise ValueError("No existe médico")
-
-        medico.desactivar()
-        return self.repo.save(medico)
+    
