@@ -2,15 +2,16 @@
 
 from typing import Optional
 from datetime import datetime
+import uuid
 
 
 class Turno:
     def __init__(
         self,
-        id_turno: str,
-        id_paciente: str,
-        id_medico: str,
-        id_consultorio: str,
+        id_turno: uuid.UUID,
+        id_paciente: uuid.UUID,
+        id_medico: uuid.UUID,
+        id_consultorio: uuid.UUID,
         fecha_hora_inicio: datetime,
         fecha_hora_fin: datetime,
         id_estado: str = "PENDIENTE",

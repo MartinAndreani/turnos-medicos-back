@@ -1,19 +1,20 @@
 # app/domain/entities/medicos.py
 
 from typing import Optional
+import uuid
 
 
 class Medico:
     def __init__(
         self,
-        id_medico: str,
+        id_medico: uuid.UUID,
         matricula: str,
         dni: str,
         nombre: str,
         apellido: str,
         telefono: Optional[str] = None,
         activo: bool = True,
-        id_usuario: Optional[str] = None,
+        id_usuario: Optional[uuid.UUID] = None,
     ):
 
         self.id_medico = id_medico
