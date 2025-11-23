@@ -21,10 +21,10 @@ class MedicoModel(TimestampMixin, Base):
     usuario = relationship("UsuarioModel")
 
     especialidades = relationship(
-        "EspecialidadModel",
-        secondary="medico_especialidad",
-        back_populates="medicos"
-    )
+    "EspecialidadModel",
+    secondary="medico_especialidad",
+    back_populates="medicos"
+    )   
 
     agendas = relationship("AgendaMedicoModel", back_populates="medico")
     turnos = relationship("TurnoModel", back_populates="medico")

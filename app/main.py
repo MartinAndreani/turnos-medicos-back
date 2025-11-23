@@ -1,29 +1,45 @@
+# app/main.py
+
 from fastapi import FastAPI
 
-# 1. Importación para inicializar el Singleton
-# Al importar 'db_manager', Python ejecuta todo el código de database.py,
-# incluyendo la línea 'db_manager = Database(settings.database_url)', 
-# creando el único motor de conexión a la BD.
-from db.database import db_manager 
+# Inicializa la DB (Singleton)
+from app.db.database import db_manager, get_db, Base
 
-# 2. Importación de la Base (opcional pero recomendada)
-# Esto garantiza que la Base de SQLAlchemy esté disponible si la necesitas.
-from db.database import Base 
+# Importar modelos para que SQLAlchemy los registre
+# (IMPORTANTE: cada archivo de modelo debe ser importado)
+from app.db.models import pacientes as pacientes_model
+# si tenés más modelos, agregalos igual:
+# from app.db.models import usuarios, roles, medicos
 
-# 3. Importación de Modelos (CRUCIAL para SQLAlchemy)
-# Si tienes tus modelos definidos en una carpeta 'db/models/', por ejemplo:
-# import db.models.pacientes
-# import db.models.medicos
+# Importar routers
+from app.api.routes.pacientes import router as pacientes_router
 
-app = FastAPI()
 
+app = FastAPI(
+    title="Turnos Médicos API",
+    version="1.0.0"
+)
+
+
+# ---------------------------------------------------------
+# EVENTO STARTUP (si querés logs o seeds futuros)
+# ---------------------------------------------------------
+@app.on_event("startup")
+def startup_event():
+    print("🔌 API inicializando...")
+    engine = db_manager.engine
+    print("✅ Conexión establecida")
+
+
+# ---------------------------------------------------------
+# ROOT
+# ---------------------------------------------------------
 @app.get("/")
 def root():
-    """Ruta de salud básica de la API."""
-    return {"msg": "API está operativa"}
+    return {"status": "ok", "message": "API funcionando 🚀"}
 
-# Ejemplo de ruta que usa la conexión Singleton
-# Para probar, necesitarías importar una ruta de tu api/routes/
 
-# from app.api.routes import pacientes_router # Asumiendo que tienes un router
-# app.include_router(pacientes_router, prefix="/pacientes", tags=["Pacientes"])
+# ---------------------------------------------------------
+# INCLUIR ROUTERS
+# ---------------------------------------------------------
+app.include_router(pacientes_router)

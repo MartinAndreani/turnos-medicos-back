@@ -5,8 +5,8 @@ from sqlalchemy.orm import relationship, Mapped, mapped_column
 from app.db.database import Base
 from app.db.mixins import TimestampMixin
 
-class DisponibilidadConsultorioModel(TimestampMixin, Base):
-    __tablename__ = "disponibilidad_consultorios"
+class AsignacionConsultorioModel(TimestampMixin, Base):
+    __tablename__ = "asignacion_consultorios"
 
     id_asignacion: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4, server_default=text("gen_random_uuid()"))
     id_medico: Mapped[uuid.UUID] = mapped_column(ForeignKey("medicos.id_medico"))

@@ -127,7 +127,7 @@ def upgrade() -> None:
     sa.PrimaryKeyConstraint('id_agenda'),
     sa.UniqueConstraint('id_medico', 'dia_semana', 'hora_inicio')
     )
-    op.create_table('disponibilidad_consultorios',
+    op.create_table('asignacion_consultorios',
     sa.Column('id_asignacion', sa.Uuid(), server_default=sa.text('gen_random_uuid()'), nullable=False),
     sa.Column('id_medico', sa.Uuid(), nullable=False),
     sa.Column('id_consultorio', sa.Uuid(), nullable=False),
@@ -141,16 +141,11 @@ def upgrade() -> None:
     sa.PrimaryKeyConstraint('id_asignacion'),
     sa.UniqueConstraint('id_consultorio', 'jornada', 'fecha_inicio', 'fecha_fin')
     )
-    op.create_table('medico_especialidad',
-    sa.Column('id_medico_especialidad', sa.Uuid(), server_default=sa.text('gen_random_uuid()'), nullable=False),
-    sa.Column('id_medico', sa.Uuid(), nullable=False),
-    sa.Column('id_especialidad', sa.Uuid(), nullable=False),
-    sa.Column('created_at', sa.TIMESTAMP(timezone=True), server_default=sa.text('now()'), nullable=False),
-    sa.Column('updated_at', sa.TIMESTAMP(timezone=True), server_default=sa.text('now()'), nullable=False),
-    sa.ForeignKeyConstraint(['id_especialidad'], ['especialidades.id_especialidad'], ),
-    sa.ForeignKeyConstraint(['id_medico'], ['medicos.id_medico'], ),
-    sa.PrimaryKeyConstraint('id_medico_especialidad')
-    )
+    op.create_table(
+    "medico_especialidad",
+    sa.Column("id_medico", sa.Uuid(), sa.ForeignKey("medicos.id_medico"), primary_key=True, nullable=False),
+    sa.Column("id_especialidad", sa.Uuid(), sa.ForeignKey("especialidades.id_especialidad"), primary_key=True, nullable=False),
+)
     op.create_table('turnos',
     sa.Column('id_turno', sa.Uuid(), server_default=sa.text('gen_random_uuid()'), nullable=False),
     sa.Column('id_paciente', sa.Uuid(), nullable=False),
@@ -220,7 +215,7 @@ def downgrade() -> None:
     op.drop_table('historial_eventos')
     op.drop_table('turnos')
     op.drop_table('medico_especialidad')
-    op.drop_table('disponibilidad_consultorios')
+    op.drop_table('asignacion_consultorios')
     op.drop_table('agendas_medicos')
     op.drop_table('roles_x_usuarios')
     op.drop_table('pacientes')
