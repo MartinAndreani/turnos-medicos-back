@@ -8,11 +8,15 @@ from app.db.database import db_manager, get_db, Base
 # Importar modelos para que SQLAlchemy los registre
 # (IMPORTANTE: cada archivo de modelo debe ser importado)
 from app.db.models import pacientes as pacientes_model
+from app.db.models import medicos as medicos_model
+from app.db.models import turnos as turnos_model    
 # si tenés más modelos, agregalos igual:
 # from app.db.models import usuarios, roles, medicos
 
 # Importar routers
 from app.api.routes.pacientes import router as pacientes_router
+from app.api.routes.medicos import router as medicos_router
+from app.api.routes.turnos import router as turnos_router
 
 
 app = FastAPI(
@@ -43,3 +47,5 @@ def root():
 # INCLUIR ROUTERS
 # ---------------------------------------------------------
 app.include_router(pacientes_router)
+app.include_router(medicos_router)
+app.include_router(turnos_router)
