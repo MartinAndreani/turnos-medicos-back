@@ -199,6 +199,7 @@ def upgrade() -> None:
     sa.Column('id_receta', sa.Uuid(), server_default=sa.text('gen_random_uuid()'), nullable=False),
     sa.Column('id_turno', sa.Uuid(), nullable=False),
     sa.Column('medicamentos', sa.JSON(), nullable=True),
+    sa.Column('descripcion', sa.Text(), nullable=True),
     sa.Column('created_at', sa.TIMESTAMP(timezone=True), server_default=sa.text('now()'), nullable=False),
     sa.Column('updated_at', sa.TIMESTAMP(timezone=True), server_default=sa.text('now()'), nullable=False),
     sa.ForeignKeyConstraint(['id_turno'], ['turnos.id_turno'], ),
