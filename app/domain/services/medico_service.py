@@ -37,7 +37,6 @@ class MedicoService:
             apellido=dto.apellido,
             telefono=getattr(dto, "telefono", None),
             activo=True,
-            id_usuario=getattr(dto, "id_usuario", None),
         )
 
         return self.repo.save(medico)
@@ -84,8 +83,7 @@ class MedicoService:
         if hasattr(dto, "activo") and dto.activo is not None:
             medico.activo = dto.activo
 
-        if hasattr(dto, "id_usuario") and dto.id_usuario is not None:
-            medico.id_usuario = dto.id_usuario
+        
 
         return self.repo.save(medico)
 

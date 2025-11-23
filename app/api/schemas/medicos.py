@@ -12,7 +12,6 @@ class MedicoCreate(BaseModel):
     nombre: str
     apellido: str
     telefono: Optional[str] = None
-    id_usuario: Optional[str] = None
 
 
 # ============================
@@ -25,7 +24,6 @@ class MedicoUpdate(BaseModel):
     apellido: Optional[str] = None
     telefono: Optional[str] = None
     activo: Optional[bool] = None
-    id_usuario: Optional[str] = None
 
 
 # ============================
@@ -39,7 +37,7 @@ class MedicoOut(BaseModel):
     apellido: str
     telefono: Optional[str]
     activo: bool
-    id_usuario: Optional[str]
+
 
     class Config:
         orm_mode = True

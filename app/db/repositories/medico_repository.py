@@ -19,7 +19,6 @@ def _row_to_domain(row: MedicoModel) -> Medico:
         apellido=row.apellido,
         telefono=row.telefono,
         activo=row.activo,
-        id_usuario=row.id_usuario,
     )
 
 
@@ -59,3 +58,37 @@ class MedicoRepository:
     # LISTA TODOS (ACTIVOS E INACTIVOS)
     def list_all(self):
         return self.se
+    
+    def save(self,medico:Medico)-> Medico:
+        row = self.session.get(MedicoModel, medico.id_medico)
+        if not row:
+            row = MedicoModel(id_medico=medico.id_medico or str(uuid4()))
+        row.matricula = medico.matricula
+        row.dni = medico.dni
+        row.nombre = medico.nombre
+        row.apellido = medico.apellido
+        row.telefono = medico.telefono
+        row.activo = medico.activo
+        
+        try:
+            self.session.add(row)
+            self.session.commit()
+            self.session.refresh(row)
+        except:
+            self.session.rollback()
+            raise
+        return _row_to_domain(row)
+
+
+    def delete(self, id_medico: str) -> bool:
+        row = self.session.get(MedicoModel, id_medico)
+        if not row:
+            return False
+        try:
+            row.activo = False
+            self.session.commit()
+            return True
+        except:
+            self.session.rollback()
+            raise
+        
