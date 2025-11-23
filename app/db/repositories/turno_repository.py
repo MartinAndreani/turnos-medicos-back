@@ -119,9 +119,6 @@ class TurnoRepository:
 
         return self.session.query(query.exists()).scalar()
 
-
-
-
     # SAVE (CREATE / UPDATE)
     def save(self, turno: Turno) -> Turno:
         row = self.session.get(TurnoModel, turno.id_turno)
