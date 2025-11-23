@@ -13,6 +13,7 @@ from app.db.models import pacientes as pacientes_model
 
 # Importar routers
 from app.api.routes.pacientes import router as pacientes_router
+from app.api.routes.medicos import router as medicos_router
 
 
 app = FastAPI(
@@ -43,3 +44,4 @@ def root():
 # INCLUIR ROUTERS
 # ---------------------------------------------------------
 app.include_router(pacientes_router)
+app.include_router(medicos_router)
