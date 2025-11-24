@@ -1,6 +1,6 @@
 from datetime import time
 import uuid
-from sqlalchemy import Date, ForeignKey, Integer, String, Time, UniqueConstraint, text
+from sqlalchemy import Boolean, Date, ForeignKey, String, UniqueConstraint, text
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 from app.db.database import Base
 from app.db.mixins import TimestampMixin
@@ -14,6 +14,7 @@ class AsignacionConsultorioModel(TimestampMixin, Base):
     fecha_inicio: Mapped[Date] = mapped_column(Date, nullable=False)
     fecha_fin: Mapped[Date] = mapped_column(Date, nullable=False)
     jornada: Mapped[str] = mapped_column(String, nullable=False)
+    activo: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
 
     __table_args__ = (
         UniqueConstraint("id_consultorio", "jornada", "fecha_inicio", "fecha_fin"),

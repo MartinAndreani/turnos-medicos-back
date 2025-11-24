@@ -17,9 +17,8 @@ class MedicoModel(TimestampMixin, Base):
     apellido: Mapped[str] = mapped_column(String, nullable=False)
     telefono: Mapped[str | None] = mapped_column(String)
     activo: Mapped[bool] = mapped_column(Boolean, default=True)
-
+    
     usuario = relationship("UsuarioModel")
-
     especialidades = relationship(
     "EspecialidadModel",
     secondary="medico_especialidad",
