@@ -1,19 +1,26 @@
 # app/api/schemas/historias_clinicas.py
 
+from uuid import UUID  # <--- Importante
 from pydantic import BaseModel, ConfigDict, Field
 from typing import Optional
 from datetime import datetime
 
 
+# ============================
+#   CREATE
+# ============================
 class HistoriaClinicaCreate(BaseModel):
-    id_paciente: str
-    id_medico: str
-    id_turno: Optional[str] = None
+    id_paciente: UUID
+    id_medico: UUID
+    id_turno: Optional[UUID] = None
     diagnostico: Optional[str] = None
     tratamiento: Optional[str] = None
     observaciones: Optional[str] = None
 
 
+# ============================
+#   UPDATE
+# ============================
 class HistoriaClinicaUpdate(BaseModel):
     diagnostico: Optional[str] = None
     tratamiento: Optional[str] = None
@@ -21,11 +28,16 @@ class HistoriaClinicaUpdate(BaseModel):
     activo: Optional[bool] = None  # baja lógica / reactivación
 
 
+# ============================
+#   OUT
+# ============================
 class HistoriaClinicaOut(BaseModel):
-    id: str
-    id_paciente: str
-    id_medico: str
-    id_turno: Optional[str]
+    # Asumo que tu PK en base de datos es 'id_historia_clinica'
+    id: UUID = Field(..., alias="id_historia_clinica")
+    
+    id_paciente: UUID
+    id_medico: UUID
+    id_turno: Optional[UUID]
     fecha_registro: datetime
     diagnostico: Optional[str]
     tratamiento: Optional[str]
