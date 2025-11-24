@@ -16,6 +16,6 @@ class ConsultorioOut(BaseModel):
     piso: int
     activo: bool
 
-class Config:
-    orm_mode = True
-    allow_population_by_field_name = True
+    class Config:
+        orm_mode = True
+        allow_population_by_field_name = True

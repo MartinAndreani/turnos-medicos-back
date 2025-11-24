@@ -17,7 +17,7 @@ from app.db.models import turnos as turnos_model
 from app.api.routes.pacientes import router as pacientes_router
 from app.api.routes.medicos import router as medicos_router
 from app.api.routes.turnos import router as turnos_router
-
+from app.api.routes.asignacion_consultorios import router as asignacion_consultorios_router
 
 app = FastAPI(
     title="Turnos Médicos API",
@@ -49,3 +49,4 @@ def root():
 app.include_router(pacientes_router)
 app.include_router(medicos_router)
 app.include_router(turnos_router)
+app.include_router(asignacion_consultorios_router)
