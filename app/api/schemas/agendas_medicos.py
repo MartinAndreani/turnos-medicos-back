@@ -1,7 +1,7 @@
 # app/api/schemas/agenda_medico.py
 
 from uuid import UUID
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 from datetime import time
 from typing import Optional
 
@@ -34,6 +34,7 @@ class AgendaMedicoOut(BaseModel):
     jornada: str
     activo: bool
 
-    class Config:
-        orm_mode = True
-        allow_population_by_field_name = True
+    model_config = ConfigDict(
+        from_attributes=True,        
+        populate_by_name=True       
+    )

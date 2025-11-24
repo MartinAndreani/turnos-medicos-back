@@ -1,7 +1,7 @@
 # app/api/schemas/usuarios.py
 
 from uuid import UUID
-from pydantic import BaseModel, Field, EmailStr
+from pydantic import BaseModel, ConfigDict, Field, EmailStr
 from typing import Optional, List
 
 
@@ -25,6 +25,7 @@ class UsuarioOut(BaseModel):
     email: EmailStr
     activo: bool
 
-    class Config:
-        orm_mode = True
-        allow_population_by_field_name = True
+    model_config = ConfigDict(
+        from_attributes=True,        
+        populate_by_name=True       
+    )
