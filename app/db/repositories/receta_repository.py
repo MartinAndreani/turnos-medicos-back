@@ -16,6 +16,7 @@ def _row_to_domain(row: RecetaModel) -> Receta:
         fecha_emision=row.fecha_emision,
         medicamentos=row.medicamentos,
         descripcion=row.descripcion,
+        activo=row.activo,
     )
 
 
@@ -33,6 +34,7 @@ class RecetaRepository:
         row = (
             self.session.query(RecetaModel)
             .filter(RecetaModel.id_turno == id_turno)
+            .filter(RecetaModel.activo == True)
             .first()
         )
         return _row_to_domain(row) if row else None
@@ -41,6 +43,7 @@ class RecetaRepository:
     def list(self, skip: int = 0, limit: int = 100) -> List[Receta]:
         rows = (
             self.session.query(RecetaModel)
+            .filter(RecetaModel.activo == True)
             .offset(skip)
             .limit(limit)
             .all()
@@ -52,6 +55,7 @@ class RecetaRepository:
         rows = (
             self.session.query(RecetaModel)
             .filter(RecetaModel.id_turno == id_turno)
+            .filter(RecetaModel.activo == True)
             .all()
         )
         return [_row_to_domain(r) for r in rows]
@@ -67,6 +71,7 @@ class RecetaRepository:
         row.fecha_emision = receta.fecha_emision
         row.medicamentos = receta.medicamentos
         row.descripcion = receta.descripcion
+        row.activo = receta.activo
 
         try:
             self.session.add(row)

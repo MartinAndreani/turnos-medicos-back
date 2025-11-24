@@ -15,6 +15,7 @@ class RecetaCreate(BaseModel):
 class RecetaUpdate(BaseModel):
     medicamentos: Optional[str] = None
     descripcion: Optional[str] = None
+    activo: Optional[bool] = None
 
 
 class RecetaOut(BaseModel):
@@ -23,6 +24,7 @@ class RecetaOut(BaseModel):
     fecha_emision: date
     medicamentos: Optional[str]
     descripcion: Optional[str]
+    activo: bool
 
     class Config:
         orm_mode = True

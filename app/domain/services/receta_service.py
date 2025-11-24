@@ -45,6 +45,7 @@ class RecetaService:
             fecha_emision=date.today(),
             medicamentos=dto.medicamentos,
             descripcion=dto.descripcion,
+            activo=True,
         )
 
         return self.receta_repo.save(receta)
@@ -61,7 +62,8 @@ class RecetaService:
         if dto.descripcion is not None:
             receta.descripcion = dto.descripcion
 
-        
+        if dto.activo is not None:
+            receta.activo = dto.activo
 
         # Validación: no dejar receta vacía
         if not receta.medicamentos and not receta.descripcion:

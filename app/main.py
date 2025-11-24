@@ -11,6 +11,10 @@ from app.db.models import pacientes as pacientes_model
 from app.db.models import medicos as medicos_model
 from app.db.models import turnos as turnos_model    
 from app.db.models import recetas as recetas_model
+from app.db.models import especialidades as especialidades_model
+from app.db.models import medico_especialidades as medico_especialidades_model
+from app.db.models import usuarios as usuarios_model
+from app.db.models import roles as roles_model
 # si tenés más modelos, agregalos igual:
 # from app.db.models import usuarios, roles, medicos
 
@@ -19,6 +23,10 @@ from app.api.routes.pacientes import router as pacientes_router
 from app.api.routes.medicos import router as medicos_router
 from app.api.routes.turnos import router as turnos_router
 from app.api.routes.recetas import router as recetas_router
+from app.api.routes.especialidades import router as especialidades_router
+from app.api.routes.medico_especialidad import router as medico_especialidades_router
+from app.api.routes.usuarios import router as usuarios_router
+from app.api.routes.roles import router as roles_router
 
 
 app = FastAPI(
@@ -52,3 +60,7 @@ app.include_router(pacientes_router)
 app.include_router(medicos_router)
 app.include_router(turnos_router)
 app.include_router(recetas_router)
+app.include_router(especialidades_router)
+app.include_router(medico_especialidades_router)
+app.include_router(usuarios_router)
+app.include_router(roles_router)
