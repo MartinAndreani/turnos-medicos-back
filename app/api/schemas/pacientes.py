@@ -33,6 +33,6 @@ class PacienteOut(BaseModel):
     telefono: Optional[str]
     activo: bool
 
-    class Config:
-        orm_mode = True
-        allow_population_by_field_name = True
+class Config:
+    orm_mode = True
+    allow_population_by_field_name = True

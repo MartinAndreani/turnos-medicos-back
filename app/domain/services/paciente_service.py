@@ -43,7 +43,8 @@ class PacienteService:
         return self.repo.save(paciente)
 
     def delete(self, id_paciente: str) -> bool:
-        # Podés preferir soft-delete: marcar activo=False en vez de borrar.
+        if not self.repo.get_by_id(id_paciente):
+            raise ValueError("No existe paciente")
         return self.repo.delete(id_paciente)
 
     def list(self, skip=0, limit=100):
