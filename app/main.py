@@ -12,7 +12,7 @@ from app.db.models import medicos as medicos_model
 from app.db.models import turnos as turnos_model    
 from app.db.models import recetas as recetas_model
 from app.db.models import especialidades as especialidades_model
-from app.db.models import medico_especialidades as medico_especialidades_model
+from app.db.models import medico_especialidad as medico_especialidad_model
 from app.db.models import usuarios as usuarios_model
 from app.db.models import roles as roles_model
 # si tenés más modelos, agregalos igual:
