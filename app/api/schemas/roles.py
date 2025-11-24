@@ -1,6 +1,4 @@
-# app/api/schemas/roles.py
 
-from uuid import UUID
 from pydantic import BaseModel, ConfigDict, Field
 from typing import Optional
 
@@ -17,7 +15,7 @@ class RolUpdate(BaseModel):
 
 
 class RolOut(BaseModel):
-    id: UUID = Field(..., alias="id_rol")
+    id: str 
     nombre: str
     descripcion: Optional[str]
     activo: bool

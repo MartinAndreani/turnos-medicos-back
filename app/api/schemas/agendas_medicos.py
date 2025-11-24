@@ -1,13 +1,11 @@
-# app/api/schemas/agenda_medico.py
 
-from uuid import UUID
 from pydantic import BaseModel, ConfigDict, Field
 from datetime import time
 from typing import Optional
 
 
 class AgendaMedicoCreate(BaseModel):
-    id_medico: UUID
+    id_medico: str
     dia_semana: int
     hora_inicio: time
     hora_fin: time
@@ -25,8 +23,8 @@ class AgendaMedicoUpdate(BaseModel):
 
 
 class AgendaMedicoOut(BaseModel):
-    id: UUID = Field(..., alias="id_agenda")
-    id_medico: UUID
+    id: str
+    id_medico: str
     dia_semana: int
     hora_inicio: time
     hora_fin: time

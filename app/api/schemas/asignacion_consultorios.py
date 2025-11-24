@@ -1,11 +1,10 @@
 from datetime import date
 from pydantic import BaseModel, Field
-from uuid import UUID
 
 
 class AsignacionConsultorioCreateDTO(BaseModel):
-    id_medico: UUID
-    id_consultorio: UUID
+    id_medico: str
+    id_consultorio: str
     fecha_inicio: date
     fecha_fin: date
     jornada: str = Field(..., pattern="^(mañana|tarde|noche)$")
@@ -19,9 +18,9 @@ class AsignacionConsultorioUpdateDTO(BaseModel):
 
 
 class AsignacionConsultorioResponseDTO(BaseModel):
-    id_asignacion: UUID
-    id_medico: UUID
-    id_consultorio: UUID
+    id_asignacion: str
+    id_medico: str
+    id_consultorio: str
     fecha_inicio: date
     fecha_fin: date
     jornada: str

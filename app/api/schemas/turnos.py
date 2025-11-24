@@ -1,4 +1,4 @@
-from uuid import UUID
+
 from pydantic import BaseModel, ConfigDict, Field
 from typing import Optional
 from datetime import datetime
@@ -37,8 +37,7 @@ class TurnoUpdate(BaseModel):
 #   TURNO OUT
 # ============================
 class TurnoOut(BaseModel):
-    id: UUID = Field(..., alias="id_turno")
-
+    id: str
     id_paciente: str
     id_medico: str
     id_consultorio: str

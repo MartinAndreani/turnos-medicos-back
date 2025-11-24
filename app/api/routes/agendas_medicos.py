@@ -1,5 +1,4 @@
-# app/api/routes/agenda_medico.py
-
+from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
@@ -11,11 +10,11 @@ from app.domain.services.agenda_medico_service import AgendaMedicoService
 
 router = APIRouter(prefix="/agendas-medicos", tags=["agenda_medico"])
 
-
 def get_service(db: Session = Depends(get_db)):
     agenda_repo = AgendaMedicoRepository(db)
     medico_repo = MedicoRepository(db)
     return AgendaMedicoService(agenda_repo, medico_repo)
+
 
 
 @router.post("/", response_model=AgendaMedicoOut, status_code=status.HTTP_201_CREATED)
@@ -23,23 +22,24 @@ def create_agenda(dto: AgendaMedicoCreate, service: AgendaMedicoService = Depend
     try:
         return service.create(dto)
     except ValueError as ex:
-        raise HTTPException(400, str(ex))
+        
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, str(ex))
 
 
 @router.put("/{id_agenda}", response_model=AgendaMedicoOut)
-def update_agenda(id_agenda: str, dto: AgendaMedicoUpdate, service: AgendaMedicoService = Depends(get_service)):
+def update_agenda(id_agenda: UUID, dto: AgendaMedicoUpdate, service: AgendaMedicoService = Depends(get_service)):
     try:
         return service.update(id_agenda, dto)
     except ValueError as ex:
         msg = str(ex)
         if "no encontrada" in msg:
-            raise HTTPException(404, msg)
-        raise HTTPException(400, msg)
+            raise HTTPException(status.HTTP_404_NOT_FOUND, msg)
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, msg)
 
 
 @router.delete("/{id_agenda}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_agenda(id_agenda: str, service: AgendaMedicoService = Depends(get_service)):
+def delete_agenda(id_agenda: UUID, service: AgendaMedicoService = Depends(get_service)):
     ok = service.delete(id_agenda)
     if not ok:
-        raise HTTPException(404, "Agenda no encontrada")
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Agenda no encontrada")
     return

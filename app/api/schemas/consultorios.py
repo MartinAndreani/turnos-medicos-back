@@ -1,9 +1,4 @@
-
-
-
-
 from pydantic import BaseModel, Field
-from sqlalchemy import UUID
 
 
 class ConsultorioCreate(BaseModel):
@@ -11,7 +6,7 @@ class ConsultorioCreate(BaseModel):
     piso: int
     
 class ConsultorioOut(BaseModel):
-    id_consultorio: UUID = Field(...,alias="id_consultorio")
+    id_consultorio: str 
     numero_consultorio: int
     piso: int
     activo: bool

@@ -1,13 +1,11 @@
-# app/api/schemas/recetas.py
 
-from uuid import UUID
 from pydantic import BaseModel, ConfigDict, Field
 from typing import Optional
 from datetime import date
 
 
 class RecetaCreate(BaseModel):
-    id_turno: UUID
+    id_turno: str
     medicamentos: Optional[str] = None
     descripcion: Optional[str] = None
 
@@ -19,8 +17,8 @@ class RecetaUpdate(BaseModel):
 
 
 class RecetaOut(BaseModel):
-    id: UUID = Field(..., alias="id_receta")
-    id_turno: UUID
+    id: str 
+    id_turno: str
     fecha_emision: date
     medicamentos: Optional[str]
     descripcion: Optional[str]

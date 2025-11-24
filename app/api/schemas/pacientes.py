@@ -1,6 +1,6 @@
 
 
-from uuid import UUID
+
 from pydantic import BaseModel, ConfigDict,Field
 from typing import Optional
 from datetime import date
@@ -24,7 +24,7 @@ class PacienteUpdate(BaseModel):
     activo: Optional[bool]
 
 class PacienteOut(BaseModel):
-    id: UUID = Field(..., alias="id_paciente")
+    id: str
     dni: str
     nombre: str
     apellido: str

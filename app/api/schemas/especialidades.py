@@ -1,4 +1,4 @@
-from uuid import UUID
+
 from pydantic import BaseModel, ConfigDict, Field
 from typing import Optional
 
@@ -15,7 +15,7 @@ class EspecialidadUpdate(BaseModel):
 
 
 class EspecialidadOut(BaseModel):
-    id: UUID = Field(..., alias="id_especialidad")
+    id: str
     nombre: str
     descripcion: Optional[str]
     activo: bool
