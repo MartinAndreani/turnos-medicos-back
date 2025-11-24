@@ -1,6 +1,6 @@
 from datetime import datetime
 import uuid
-from sqlalchemy import ForeignKey, DateTime, Text, func, text
+from sqlalchemy import Boolean, ForeignKey, DateTime, Text, func, text
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 from app.db.database import Base
 from app.db.mixins import TimestampMixin
@@ -16,6 +16,7 @@ class HistoriaClinicaModel(TimestampMixin, Base):
     diagnostico: Mapped[str | None] = mapped_column(Text)
     tratamiento: Mapped[str | None] = mapped_column(Text)
     observaciones: Mapped[str | None] = mapped_column(Text)
+    activo: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False) 
 
     paciente = relationship("PacienteModel", back_populates="historias_clinicas")
     medico = relationship("MedicoModel", back_populates="historias_clinicas")
