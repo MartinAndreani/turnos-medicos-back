@@ -18,6 +18,7 @@ class AgendaMedicoModel(TimestampMixin, Base):
     hora_fin: Mapped[Time] = mapped_column(Time, nullable=False)
     duracion_turno: Mapped[int] = mapped_column(Integer, nullable=False)
     jornada: Mapped[str] = mapped_column(String, nullable=False)
+    activo: Mapped[bool] = mapped_column(default=True, nullable=False)
 
     medico = relationship("MedicoModel", back_populates="agendas")
 
