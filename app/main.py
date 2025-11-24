@@ -32,6 +32,12 @@ from app.api.routes.auth import router as auth_router
 from app.api.routes.historias_clinicas import router as historias_clinicas_router
 from app.api.routes.asignacion_consultorios import router as asignacion_consultorios_router
 from app.api.routes.consultorios import router as consultorios_router
+from app.reports.pacientes.routes.patients_reports import router as pacientes_reports_router
+from app.reports.historias_clinicas.routes.historias_clinicas import router as historia_reports_router
+
+
+
+
 app = FastAPI(
     title="Turnos Médicos API",
     version="1.0.0"
@@ -71,3 +77,5 @@ app.include_router(roles_router)
 app.include_router(auth_router)
 app.include_router(asignacion_consultorios_router)
 app.include_router(consultorios_router)
+app.include_router(pacientes_reports_router)
+app.include_router(historia_reports_router)
