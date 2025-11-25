@@ -1,5 +1,7 @@
+from datetime import datetime
+from typing import List, Optional
 from uuid import UUID
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 from app.db.database import get_db
 
@@ -21,6 +23,39 @@ def get_service(db: Session = Depends(get_db)):
         AsignacionConsultorioRepository(db),
         MedicoRepository(db)
     )
+
+@router.get("/", response_model=List[TurnoOut])
+def listar_turnos(
+    id_medico: Optional[UUID] = Query(None, description="Filtrar por médico"),
+    id_paciente: Optional[UUID] = Query(None, description="Filtrar por paciente"),
+    fecha_desde: Optional[datetime] = Query(None, description="Fecha inicio del rango"),
+    fecha_hasta: Optional[datetime] = Query(None, description="Fecha fin del rango"),
+    service: TurnoService = Depends(get_service)
+):
+    """
+    Obtiene una lista de turnos. 
+    Se pueden aplicar filtros opcionales.
+    """
+    # Convertimos UUIDs a string para el servicio si es necesario, 
+    # aunque SQLAlchemy suele manejar UUIDs objetos bien.
+    return service.get_all(
+        id_medico=str(id_medico) if id_medico else None,
+        id_paciente=str(id_paciente) if id_paciente else None,
+        fecha_desde=fecha_desde,
+        fecha_hasta=fecha_hasta
+    )
+
+@router.get("/{id_turno}", response_model=TurnoOut)
+def obtener_turno(
+    id_turno: UUID,
+    service: TurnoService = Depends(get_service)
+):
+    try:
+        return service.get_by_id(str(id_turno))
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+
+
 
 @router.post("/", response_model=TurnoOut, status_code=status.HTTP_201_CREATED)
 def crear_turno(dto: TurnoCreate, service: TurnoService = Depends(get_service)):

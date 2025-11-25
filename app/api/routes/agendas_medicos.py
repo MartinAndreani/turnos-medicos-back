@@ -20,6 +20,11 @@ def get_service(db: Session = Depends(get_db)):
         MedicoRepository(db)
     )
 
+@router.get("/agendas/{id_medico}/turnos-disponibles")
+def turnos_disponibles(id_medico: str, service: AgendaMedicoService = Depends(get_service)):
+    return service.get_dias_y_horarios_disponibles(id_medico)
+
+
 # response_model es AgendaMedicoOut (singular), no List[...]
 @router.post("/", response_model=AgendaMedicoOut, status_code=201)
 def create_agenda_masiva(
