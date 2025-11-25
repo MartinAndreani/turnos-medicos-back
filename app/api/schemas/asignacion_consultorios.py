@@ -1,31 +1,46 @@
-from datetime import date
-from pydantic import BaseModel, Field
+from uuid import UUID
+from datetime import date, time
+from typing import List, Optional
+from pydantic import BaseModel, Field, ConfigDict
 
-
+# CREATE
 class AsignacionConsultorioCreateDTO(BaseModel):
-    id_medico: str
-    id_consultorio: str
+    id_medico: UUID
+    id_consultorio: UUID
     fecha_inicio: date
     fecha_fin: date
-    jornada: str = Field(..., pattern="^(mañana|tarde|noche)$")
+    
+    dias_semana: List[int] # <--- CAMBIO: Lista
+    
+    hora_inicio: time
+    hora_fin: time
+    jornada: str = Field(..., pattern="^(mañana|tarde|noche|Manana)$") 
 
-
+# UPDATE
 class AsignacionConsultorioUpdateDTO(BaseModel):
-    fecha_inicio: date | None = None
-    fecha_fin: date | None = None
-    jornada: str | None = Field(None, pattern="^(mañana|tarde|noche)$")
-    activo: bool | None = None
+    fecha_inicio: Optional[date] = None
+    fecha_fin: Optional[date] = None
+    
+    dias_semana: Optional[List[int]] = None # <--- CAMBIO
+    
+    hora_inicio: Optional[time] = None
+    hora_fin: Optional[time] = None
+    jornada: Optional[str] = None
+    activo: Optional[bool] = None
 
-
+# OUT
 class AsignacionConsultorioResponseDTO(BaseModel):
-    id_asignacion: str
-    id_medico: str
-    id_consultorio: str
+    id: UUID = Field(..., alias="id_asignacion")
+    id_medico: UUID
+    id_consultorio: UUID
     fecha_inicio: date
     fecha_fin: date
+    
+    dias_semana: List[int] # <--- CAMBIO
+    
+    hora_inicio: time
+    hora_fin: time
     jornada: str
     activo: bool
 
-    class Config:
-        orm_mode = True
-        allow_population_by_field_name = True
+    model_config = ConfigDict(from_attributes=True, populate_by_name=True)

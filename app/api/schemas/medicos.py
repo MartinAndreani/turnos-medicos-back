@@ -2,6 +2,8 @@
 from pydantic import BaseModel, ConfigDict, Field
 from typing import Optional
 
+from uuid import UUID
+
 
 # ============================
 #   MÉDICO CREATE
@@ -30,7 +32,7 @@ class MedicoUpdate(BaseModel):
 #   MÉDICO OUT
 # ============================
 class MedicoOut(BaseModel):
-    id: str
+    id: UUID = Field(..., alias="id_medico")
     matricula: str
     dni: str
     nombre: str
