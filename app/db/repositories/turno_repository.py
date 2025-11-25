@@ -1,159 +1,78 @@
-# app/db/repositories/turno_repository.py
-
-from uuid import uuid4
-from typing import List, Optional
+from uuid import UUID
 from sqlalchemy.orm import Session
-
-from app.db.models.turnos import TurnoModel
+from sqlalchemy import and_, or_
+from app.db.models.turnos import TurnoModel 
+from app.db.models.historial_eventos import HistorialEventoModel # Ajusta import
 from app.domain.entities.turnos import Turno
-
 
 def _row_to_domain(row: TurnoModel) -> Turno:
     return Turno(
-        id_turno=row.id_turno,
-        id_paciente=row.id_paciente,
-        id_medico=row.id_medico,
-        id_consultorio=row.id_consultorio,
+        id_turno=str(row.id_turno),
+        id_paciente=str(row.id_paciente),
+        id_medico=str(row.id_medico),
+        id_consultorio=str(row.id_consultorio),
+        id_estado_turno=str(row.id_estado_turno),
         fecha_hora_inicio=row.fecha_hora_inicio,
         fecha_hora_fin=row.fecha_hora_fin,
-        id_estado=row.id_estado,
-        motivo_consulta=row.motivo_consulta,
+        motivo_consulta=row.motivo_consulta
     )
-
 
 class TurnoRepository:
     def __init__(self, session: Session):
         self.session = session
 
-    # GET BY ID
-    def get_by_id(self, id_turno: str) -> Optional[Turno]:
-        row = self.session.get(TurnoModel, id_turno)
-        return _row_to_domain(row) if row else None
-
-    # LIST
-    def list(self, skip: int = 0, limit: int = 100) -> List[Turno]:
-        rows = (
-            self.session.query(TurnoModel)
-            .filter(TurnoModel.id_estado != "CANCELADO")   # excluir cancelados por defecto
-            .order_by(TurnoModel.fecha_hora_inicio)
-            .offset(skip)
-            .limit(limit)
-            .all()
-        )
-        return [_row_to_domain(r) for r in rows]
-
-    # LIST POR MEDICO
-    def list_by_medico(self, id_medico: str, skip: int = 0, limit: int = 100) -> List[Turno]:
-        rows = (
-            self.session.query(TurnoModel)
-            .filter(TurnoModel.id_medico == id_medico)
-            .filter(TurnoModel.id_estado != "CANCELADO")
-            .order_by(TurnoModel.fecha_hora_inicio)
-            .offset(skip)
-            .limit(limit)
-            .all()
-        )
-        return [_row_to_domain(r) for r in rows]
-
-    # LIST POR PACIENTE
-    def list_by_paciente(self, id_paciente: str, skip: int = 0, limit: int = 100) -> List[Turno]:
-        rows = (
-            self.session.query(TurnoModel)
-            .filter(TurnoModel.id_paciente == id_paciente)
-            .filter(TurnoModel.id_estado != "CANCELADO")
-            .order_by(TurnoModel.fecha_hora_inicio)
-            .offset(skip)
-            .limit(limit)
-            .all()
-        )
-        return [_row_to_domain(r) for r in rows]
-    
-
-
-    # ======================================================
-    # VALIDACIÓN DE SUPERPOSICIÓN – MÉDICO
-    # ======================================================
-    def hay_superposicion_medico(
-        self,
-        id_medico: str,
-        inicio,
-        fin,
-        excluir_id: str | None = None
-    ) -> bool:
-
-        query = (
-            self.session.query(TurnoModel)
-            .filter(TurnoModel.id_medico == id_medico)
-            .filter(TurnoModel.id_estado != "CANCELADO")
-            .filter(TurnoModel.fecha_hora_inicio < fin)
-            .filter(TurnoModel.fecha_hora_fin > inicio)
-        )
-
-        if excluir_id:
-            query = query.filter(TurnoModel.id_turno != excluir_id)
-
-        return self.session.query(query.exists()).scalar()
-    
-
-    # ======================================================
-    # VALIDACIÓN DE SUPERPOSICIÓN – CONSULTORIO
-    # ======================================================
-    def hay_superposicion_consultorio(
-        self,
-        id_consultorio: str,
-        inicio,
-        fin,
-        excluir_id: str | None = None
-    ) -> bool:
-
-        query = (
-            self.session.query(TurnoModel)
-            .filter(TurnoModel.id_consultorio == id_consultorio)
-            .filter(TurnoModel.id_estado != "CANCELADO")
-            .filter(TurnoModel.fecha_hora_inicio < fin)
-            .filter(TurnoModel.fecha_hora_fin > inicio)
-        )
-
-        if excluir_id:
-            query = query.filter(TurnoModel.id_turno != excluir_id)
-
-        return self.session.query(query.exists()).scalar()
-
-    # SAVE (CREATE / UPDATE)
     def save(self, turno: Turno) -> Turno:
-        row = self.session.get(TurnoModel, turno.id_turno)
-
+        row = self.session.get(TurnoModel, UUID(turno.id_turno))
         if not row:
-            row = TurnoModel(id_turno=turno.id_turno or str(uuid4()))
-
-        row.id_paciente = turno.id_paciente
-        row.id_medico = turno.id_medico
-        row.id_consultorio = turno.id_consultorio
-        row.fecha_hora_inicio = turno.fecha_hora_inicio
-        row.fecha_hora_fin = turno.fecha_hora_fin
-        row.id_estado = turno.id_estado
-        row.motivo_consulta = turno.motivo_consulta
-
-        try:
+            row = TurnoModel(
+                id_turno=UUID(turno.id_turno),
+                id_paciente=UUID(turno.id_paciente),
+                id_medico=UUID(turno.id_medico),
+                id_consultorio=UUID(turno.id_consultorio),
+                id_estado_turno=UUID(turno.id_estado_turno),
+                fecha_hora_inicio=turno.fecha_hora_inicio,
+                fecha_hora_fin=turno.fecha_hora_fin,
+                motivo_consulta=turno.motivo_consulta
+            )
             self.session.add(row)
-            self.session.commit()
-            self.session.refresh(row)
-        except Exception:
-            self.session.rollback()
-            raise
+        else:
+            row.id_estado_turno = UUID(turno.id_estado_turno)
+            # Actualizar otros campos si fuera necesario
 
+        self.session.flush() # Flush para obtener IDs si fuera autoincremental (aquí es UUID)
         return _row_to_domain(row)
 
-    # DELETE (BAJA LOGICA → CANCELADO)
-    def delete(self, id_turno: str) -> bool:
-        row = self.session.get(TurnoModel, id_turno)
-        if not row:
-            return False
+    def check_overlap_medico(self, id_medico: str, inicio, fin) -> bool:
+        """Valida si el médico ya tiene turno en ese horario"""
+        exists = self.session.query(TurnoModel).filter(
+            TurnoModel.id_medico == UUID(id_medico),
+            # Filtra solo turnos activos (ej: no cancelados)
+            # Aquí deberías filtrar por estados que "ocupan" lugar.
+            # Asumiremos que todos ocupan salvo 'Cancelado'.
+            # TurnoModel.id_estado_turno != ID_CANCELADO (Mejor manejar lógica en Service)
+            
+            TurnoModel.fecha_hora_inicio < fin,
+            TurnoModel.fecha_hora_fin > inicio
+        ).first()
+        return exists is not None
 
-        try:
-            row.id_estado = "CANCELADO"    # BAJA LÓGICA
-            self.session.commit()
-            return True
-        except Exception:
-            self.session.rollback()
-            raise
+    def check_overlap_paciente(self, id_paciente: str, inicio, fin) -> bool:
+        """Valida si el paciente ya tiene turno en ese horario"""
+        exists = self.session.query(TurnoModel).filter(
+            TurnoModel.id_paciente == UUID(id_paciente),
+            TurnoModel.fecha_hora_inicio < fin,
+            TurnoModel.fecha_hora_fin > inicio
+        ).first()
+        return exists is not None
+
+    def add_history(self, historial_data: dict):
+        """Agrega una entrada al historial de eventos"""
+        row = HistorialEventoModel(**historial_data)
+        self.session.add(row)
+    
+    def commit(self):
+        self.session.commit()
+
+    def get_by_id(self, id_turno: str):
+        row = self.session.get(TurnoModel, UUID(id_turno))
+        return _row_to_domain(row) if row else None
