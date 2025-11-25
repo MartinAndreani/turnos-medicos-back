@@ -1,167 +1,129 @@
 # app/domain/services/turno_service.py
 
-from uuid import uuid4
-from typing import Dict, Any, List, Optional
+from uuid import uuid4, UUID
 from datetime import datetime
-
-from app.db.repositories.turno_repository import TurnoRepository
+from app.api.schemas.turnos import TurnoCreate, TurnoUpdateEstado
 from app.domain.entities.turnos import Turno
 
+# Repositories
+from app.db.repositories.turno_repository import TurnoRepository
+from app.db.repositories.agenda_medico_repository import AgendaMedicoRepository
+from app.db.repositories.asignacion_consultorio_repository import AsignacionConsultorioRepository
+from app.db.repositories.medico_repository import MedicoRepository
 
-# Función auxiliar para convertir strings ISO a datetime
-def _parse_datetime(value: Any) -> datetime:
-    if isinstance(value, datetime):
-        return value
-    try:
-        return datetime.fromisoformat(value)
-    except Exception:
-        raise ValueError(f"Formato de fecha inválido: {value}")
-
+# --- CORRECCIÓN AQUÍ: Importamos las nuevas clases específicas ---
+from app.domain.entities.estados_turnos import (
+    TurnoStateFactory, 
+    EstadoPendiente, 
+    EstadoConfirmado, 
+    # EstadoCancelado,          <-- ESTO ERA LO QUE DABA ERROR (Bórralo)
+    EstadoCanceladoPorPaciente, # <-- AGREGA ESTO
+    EstadoCanceladoPorMedico,   # <-- AGREGA ESTO
+    EstadoTurnoEnum
+)
 
 class TurnoService:
-    def __init__(self, repo: TurnoRepository):
-        self.repo = repo
+    def __init__(
+        self, 
+        turno_repo: TurnoRepository,
+        agenda_repo: AgendaMedicoRepository,
+        asignacion_repo: AsignacionConsultorioRepository,
+        medico_repo: MedicoRepository
+    ):
+        self.turno_repo = turno_repo
+        self.agenda_repo = agenda_repo
+        self.asignacion_repo = asignacion_repo
+        self.medico_repo = medico_repo
 
-    # ========================================================
-    # CREATE
-    # ========================================================
-    def create(self, data: Dict[str, Any]) -> Turno:
-        required = [
-            "id_paciente",
-            "id_medico",
-            "id_consultorio",
-            "fecha_hora_inicio",
-            "fecha_hora_fin",
-        ]
+    def create(self, dto: TurnoCreate) -> Turno:
+        # ... (Toda tu lógica de create sigue igual, no cambies nada aquí) ...
+        # ... (Resumen: validaciones, buscar consultorio, crear turno PENDIENTE) ...
+        
+        # Validar existencias
+        if not self.medico_repo.get_by_id(str(dto.id_medico)): raise ValueError("Médico no existe.")
+        
+        # Validar overlaps
+        if self.turno_repo.check_overlap_medico(str(dto.id_medico), dto.fecha_hora_inicio, dto.fecha_hora_fin):
+            raise ValueError("El médico ya tiene un turno asignado.")
+        if self.turno_repo.check_overlap_paciente(str(dto.id_paciente), dto.fecha_hora_inicio, dto.fecha_hora_fin):
+            raise ValueError("El paciente ya tiene un turno asignado.")
 
-        for campo in required:
-            if campo not in data:
-                raise ValueError(f"Falta el campo requerido: {campo}")
+        # Validar Agenda
+        fecha_turno = dto.fecha_hora_inicio.date()
+        dia_semana = fecha_turno.weekday()
+        hora_turno = dto.fecha_hora_inicio.time()
+        hora_fin_turno = dto.fecha_hora_fin.time()
 
-        inicio = _parse_datetime(data["fecha_hora_inicio"])
-        fin = _parse_datetime(data["fecha_hora_fin"])
+        agenda_valida = self.agenda_repo.find_agenda_for_turn(
+            str(dto.id_medico), fecha_turno, dia_semana, hora_turno, hora_fin_turno
+        )
+        if not agenda_valida:
+            raise ValueError("El médico no tiene agenda disponible.")
 
-        if fin <= inicio:
-            raise ValueError("fecha_hora_fin debe ser mayor que fecha_hora_inicio.")
+        # Obtener Consultorio
+        asignacion_real = self.asignacion_repo.find_for_turn(
+            id_medico=str(dto.id_medico),
+            fecha=fecha_turno,
+            dia=dia_semana,
+            start=hora_turno,
+            end=hora_fin_turno
+        )
+        if not asignacion_real:
+             raise ValueError("El médico tiene agenda pero no tiene consultorio asignado.")
 
-        turno = Turno(
+        id_consultorio_asignado = asignacion_real.id_consultorio
+
+        # Crear Turno
+        nuevo_turno = Turno(
             id_turno=str(uuid4()),
-            id_paciente=data["id_paciente"],
-            id_medico=data["id_medico"],
-            id_consultorio=data["id_consultorio"],
-            fecha_hora_inicio=inicio,
-            fecha_hora_fin=fin,
-            id_estado=data.get("id_estado", "PENDIENTE"),
-            motivo_consulta=data.get("motivo_consulta"),
+            id_paciente=str(dto.id_paciente),
+            id_medico=str(dto.id_medico),
+            id_consultorio=str(id_consultorio_asignado),
+            id_estado_turno=EstadoTurnoEnum.PENDIENTE, # Usamos el Enum
+            fecha_hora_inicio=dto.fecha_hora_inicio,
+            fecha_hora_fin=dto.fecha_hora_fin,
+            motivo_consulta=dto.motivo_consulta
+        )
+        
+        saved_turno = self.turno_repo.save(nuevo_turno)
+
+        # Historial Inicial
+        estado_inicial = EstadoPendiente(saved_turno, self.turno_repo)
+        estado_inicial._registrar_historial(actor="Sistema", motivo="Creación de turno", tipo_evento="CREACION")
+
+        self.turno_repo.commit()
+        return saved_turno
+
+    def change_state(self, id_turno: str, dto: TurnoUpdateEstado) -> Turno:
+        turno = self.turno_repo.get_by_id(id_turno)
+        if not turno: raise ValueError("Turno no encontrado")
+
+        # Reconstruir estado actual
+        estado_actual = TurnoStateFactory.get_state(turno, self.turno_repo)
+
+        # --- CORRECCIÓN AQUÍ: Actualizamos el mapa con las clases nuevas ---
+        mapa_estados = {
+            EstadoTurnoEnum.PENDIENTE: EstadoPendiente,
+            EstadoTurnoEnum.CONFIRMADO: EstadoConfirmado,
+            # EstadoTurnoEnum.CANCELADO: EstadoCancelado, <-- ESTO YA NO SIRVE
+            
+            # Usamos los específicos:
+            EstadoTurnoEnum.CANCELADO_POR_PACIENTE: EstadoCanceladoPorPaciente,
+            EstadoTurnoEnum.CANCELADO_POR_MEDICO: EstadoCanceladoPorMedico,
+            # Si tienes más (Atendido, Ausente, etc), agrégalos aquí también si el front los manda
+        }
+        
+        clase_estado_destino = mapa_estados.get(str(dto.id_nuevo_estado))
+        
+        if not clase_estado_destino:
+            raise ValueError(f"Estado destino no válido o no soportado en transición manual: {dto.id_nuevo_estado}")
+
+        # Ejecutar transición
+        estado_actual.transition_to(
+            nuevo_estado_class=clase_estado_destino,
+            actor=dto.actor,
+            motivo=dto.motivo_cambio
         )
 
-        # Médico ocupado en ese horario
-        if self.repo.hay_superposicion_medico(
-            turno.id_medico,
-            inicio,
-            fin
-        ):
-            raise ValueError("El médico ya tiene un turno en ese horario.")
-
-        # Consultorio ocupado en ese horario
-        if self.repo.hay_superposicion_consultorio(
-            turno.id_consultorio,
-            inicio,
-            fin
-        ):
-            raise ValueError("El consultorio ya está ocupado en ese horario.")
-
-        return self.repo.save(turno)
-
-    # ========================================================
-    # UPDATE
-    # ========================================================
-    def update(self, id_turno: str, data: Dict[str, Any]) -> Turno:
-        turno = self.repo.get_by_id(id_turno)
-        if not turno:
-            raise ValueError("No existe turno")
-
-        # Campos simples
-        if "id_paciente" in data and data["id_paciente"] is not None:
-            turno.id_paciente = data["id_paciente"]
-
-        if "id_medico" in data and data["id_medico"] is not None:
-            turno.id_medico = data["id_medico"]
-
-        if "id_consultorio" in data and data["id_consultorio"] is not None:
-            turno.id_consultorio = data["id_consultorio"]
-
-        if "motivo_consulta" in data:
-            turno.motivo_consulta = data["motivo_consulta"]
-
-        # Fechas
-        if "fecha_hora_inicio" in data and data["fecha_hora_inicio"] is not None:
-            turno.fecha_hora_inicio = _parse_datetime(data["fecha_hora_inicio"])
-
-        if "fecha_hora_fin" in data and data["fecha_hora_fin"] is not None:
-            turno.fecha_hora_fin = _parse_datetime(data["fecha_hora_fin"])
-
-        if turno.fecha_hora_fin <= turno.fecha_hora_inicio:
-            raise ValueError("fecha_hora_fin debe ser mayor que fecha_hora_inicio.")
-
-        # Estado
-        if "id_estado" in data and data["id_estado"] is not None:
-            turno.id_estado = data["id_estado"]
-
-
-        # ===== VALIDACIÓN DE SUPERPOSICIÓN =====
-
-        if self.repo.hay_superposicion_medico(
-            turno.id_medico,
-            turno.fecha_hora_inicio,
-            turno.fecha_hora_fin,
-            excluir_id=id_turno
-        ):
-            raise ValueError("El médico ya tiene un turno en ese horario.")
-
-        if self.repo.hay_superposicion_consultorio(
-            turno.id_consultorio,
-            turno.fecha_hora_inicio,
-            turno.fecha_hora_fin,
-            excluir_id=id_turno
-        ):
-            raise ValueError("El consultorio ya está ocupado en ese horario.")
-
-        return self.repo.save(turno)
-
-    # ========================================================
-    # DELETE → CANCELA EL TURNO (BAJA LÓGICA)
-    # ========================================================
-    def delete(self, id_turno: str) -> bool:
-        turno = self.repo.get_by_id(id_turno)
-        if not turno:
-            return False
-
-        # Baja lógica → CANCELADO
-        turno.cancelar()
-        self.repo.save(turno)
-        return True
-
-    # ========================================================
-    # GET
-    # ========================================================
-    def get(self, id_turno: str) -> Optional[Turno]:
-        return self.repo.get_by_id(id_turno)
-
-    # ========================================================
-    # LIST
-    # ========================================================
-    def list(self, skip: int = 0, limit: int = 100) -> List[Turno]:
-        return self.repo.list(skip=skip, limit=limit)
-
-    # ========================================================
-    # LIST POR MÉDICO
-    # ========================================================
-    def list_by_medico(self, id_medico: str, skip: int = 0, limit: int = 100) -> List[Turno]:
-        return self.repo.list_by_medico(id_medico, skip=skip, limit=limit)
-
-    # ========================================================
-    # LIST POR PACIENTE
-    # ========================================================
-    def list_by_paciente(self, id_paciente: str, skip: int = 0, limit: int = 100) -> List[Turno]:
-        return self.repo.list_by_paciente(id_paciente, skip=skip, limit=limit)
+        self.turno_repo.commit()
+        return turno

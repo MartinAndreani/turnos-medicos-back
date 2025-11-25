@@ -33,7 +33,7 @@ from app.api.routes.historias_clinicas import router as historias_clinicas_route
 from app.api.routes.asignacion_consultorios import router as asignacion_consultorios_router
 from app.api.routes.consultorios import router as consultorios_router
 from app.api.routes.agendas_medicos import router as agendas_medicos_router
-
+from app.api.routes.turnos import router as turnos_router
 
 app = FastAPI(
     title="Turnos Médicos API",
@@ -75,3 +75,4 @@ app.include_router(auth_router)
 app.include_router(asignacion_consultorios_router)
 app.include_router(consultorios_router)
 app.include_router(agendas_medicos_router)
+app.include_router(turnos_router)
