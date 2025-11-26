@@ -1,3 +1,5 @@
+from datetime import datetime
+from typing import List, Optional
 from uuid import UUID
 from sqlalchemy.orm import Session
 from sqlalchemy import and_, or_
@@ -73,6 +75,35 @@ class TurnoRepository:
     def commit(self):
         self.session.commit()
 
-    def get_by_id(self, id_turno: str):
-        row = self.session.get(TurnoModel, UUID(id_turno))
-        return _row_to_domain(row) if row else None
+    def get_by_id(self, id_turno: str) -> Optional[Turno]:
+        # Busca por ID y devuelve la entidad (o None)
+        return self.session.query(TurnoModel).filter_by(id_turno=UUID(id_turno)).first()
+
+    def get_all(
+        self, 
+        id_medico: Optional[str] = None, 
+        id_paciente: Optional[str] = None,
+        fecha_desde: Optional[datetime] = None,
+        fecha_hasta: Optional[datetime] = None
+    ) -> List[Turno]:
+        
+        # Iniciamos la query base
+        query = self.session.query(TurnoModel)
+
+        # Aplicamos filtros dinámicos solo si vienen los datos
+        if id_medico:
+            query = query.filter(TurnoModel.id_medico == UUID(id_medico))
+        
+        if id_paciente:
+            query = query.filter(TurnoModel.id_paciente == UUID(id_paciente))
+            
+        if fecha_desde:
+            query = query.filter(TurnoModel.fecha_hora_inicio >= fecha_desde)
+            
+        if fecha_hasta:
+            query = query.filter(TurnoModel.fecha_hora_inicio <= fecha_hasta)
+
+        # Ordenamos por fecha (del más próximo al más lejano)
+        query = query.order_by(TurnoModel.fecha_hora_inicio.asc())
+
+        return query.all()

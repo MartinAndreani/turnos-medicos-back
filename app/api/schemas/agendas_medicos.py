@@ -30,13 +30,13 @@ class AgendaMedicoOut(BaseModel):
     id_medico: UUID
     fecha_inicio: date
     fecha_fin: date
-    
     dias_semana: List[int] # <--- CAMBIO: Ahora devuelve la lista [0, 2, 4]
-    
     hora_inicio: time
     hora_fin: time
     duracion_turno: int
     jornada: str
     activo: bool
-
     model_config = ConfigDict(from_attributes=True, populate_by_name=True)
+    
+    
+    

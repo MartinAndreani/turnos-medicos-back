@@ -34,6 +34,33 @@ class TurnoService:
         self.agenda_repo = agenda_repo
         self.asignacion_repo = asignacion_repo
         self.medico_repo = medico_repo
+        
+        
+        
+    def get_all(
+        self, 
+        id_medico: str = None, 
+        id_paciente: str = None, 
+        fecha_desde: datetime = None,
+        fecha_hasta: datetime = None
+    ) -> list[Turno]:
+        """
+        Obtiene lista de turnos con filtros opcionales.
+        """
+        return self.turno_repo.get_all(
+            id_medico=id_medico, 
+            id_paciente=id_paciente,
+            fecha_desde=fecha_desde,
+            fecha_hasta=fecha_hasta
+        )
+        
+    
+    def get_by_id(self, id_turno: str) -> Turno:
+        """Obtiene un turno por su ID o lanza error si no existe."""
+        turno = self.turno_repo.get_by_id(id_turno)
+        if not turno:
+            raise ValueError("El turno no existe.")
+        return turno
 
     def create(self, dto: TurnoCreate) -> Turno:
         # ... (Toda tu lógica de create sigue igual, no cambies nada aquí) ...

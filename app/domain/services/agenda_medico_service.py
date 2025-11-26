@@ -1,3 +1,4 @@
+from datetime import date, datetime, timedelta
 from uuid import uuid4
 from typing import List
 from app.api.schemas.agendas_medicos import AgendaMedicoCreate # Asegurate que sea singular
@@ -68,3 +69,60 @@ class AgendaMedicoService:
         })
         
         return agenda_guardada
+    
+    
+    def get_dias_y_horarios_disponibles(self, id_medico: str):
+
+        # 1. Verificar que existe
+        if not self.medico_repo.get_by_id(str(id_medico)):
+            raise ValueError("Médico no existe.")
+
+        hoy = date.today()
+
+        # 2. Traer agendas válidas
+        agendas = self.agenda_repo.get_agendas_activas_o_futuras(id_medico, hoy)
+        if not agendas:
+            return {}
+
+        # 3. Traer turnos ocupados reales
+        turnos_ocupados = self.agenda_repo.get_turnos_ocupados(id_medico)
+
+        # Mapa: "2025-11-26": {"09:00", "09:30"}
+        turnos_map = {}
+        for t in turnos_ocupados:
+            fecha = t.fecha_hora_inicio.date().isoformat()
+            hora = t.fecha_hora_inicio.time().strftime("%H:%M")
+            turnos_map.setdefault(fecha, set()).add(hora)
+
+        resultado = {}
+
+        # 4. Procesar cada agenda
+        for ag in agendas:
+            cursor = max(hoy, ag.fecha_inicio)
+
+            while cursor <= ag.fecha_fin:
+
+                if cursor.weekday() in ag.dias_semana:
+
+                    dt_inicio = datetime.combine(cursor, ag.hora_inicio)
+                    dt_fin = datetime.combine(cursor, ag.hora_fin)
+                    actual = dt_inicio
+
+                    horarios_disponibles = []
+
+                    while actual + timedelta(minutes=ag.duracion_turno) <= dt_fin:
+                        hora_str = actual.time().strftime("%H:%M")
+
+                        if hora_str not in turnos_map.get(cursor.isoformat(), []):
+                            horarios_disponibles.append(hora_str)
+
+                        actual += timedelta(minutes=ag.duracion_turno)
+
+                    if horarios_disponibles:
+                        resultado.setdefault(cursor.isoformat(), []).extend(
+                            horarios_disponibles
+                        )
+
+                cursor += timedelta(days=1)
+
+        return resultado
