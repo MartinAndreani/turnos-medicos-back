@@ -25,8 +25,8 @@ def upgrade() -> None:
     # 1. TABLA CONSULTORIOS
     op.create_table('consultorios',
     sa.Column('id_consultorio', sa.Uuid(), server_default=sa.text('gen_random_uuid()'), nullable=False),
-    sa.Column('numero_consultorio', sa.String(), nullable=False),
-    sa.Column('piso', sa.String(), nullable=True),
+    sa.Column('numero_consultorio', sa.Integer(), nullable=False),
+    sa.Column('piso', sa.Integer(), nullable=True),
     sa.Column('activo', sa.Boolean(), nullable=False),
     sa.Column('created_at', sa.TIMESTAMP(timezone=True), server_default=sa.text('now()'), nullable=False),
     sa.Column('updated_at', sa.TIMESTAMP(timezone=True), server_default=sa.text('now()'), nullable=False),
