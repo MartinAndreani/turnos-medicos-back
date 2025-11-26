@@ -5,6 +5,12 @@ from app.domain.entities.consultorios import Consultorio
 class ConsultorioService:
     def __init__(self, repo: ConsultorioRepository):
         self.repo = repo
+
+    def list(self, skip: int = 0, limit: int = 100):
+        return self.repo.list(skip=skip, limit=limit)
+
+    def get(self, id_consultorio: str):
+        return self.repo.get_by_id(id_consultorio)
         
     def create(self, dto) -> Consultorio:
         # 1. ELIMINAMOS LA VALIDACIÓN POR ID (El DTO no tiene ID todavía)
