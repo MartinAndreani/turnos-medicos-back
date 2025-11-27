@@ -2,6 +2,7 @@ from uuid import UUID
 from datetime import date, time
 from typing import List, Optional
 from pydantic import BaseModel, Field, ConfigDict
+from app.domain.entities.enum import JornadaEnum
 
 # CREATE
 class AsignacionConsultorioCreateDTO(BaseModel):
@@ -14,7 +15,7 @@ class AsignacionConsultorioCreateDTO(BaseModel):
     
     hora_inicio: time
     hora_fin: time
-    jornada: str = Field(..., pattern="^(mañana|tarde|noche|Manana)$") 
+    jornada: JornadaEnum
 
 # UPDATE
 class AsignacionConsultorioUpdateDTO(BaseModel):
@@ -25,7 +26,7 @@ class AsignacionConsultorioUpdateDTO(BaseModel):
     
     hora_inicio: Optional[time] = None
     hora_fin: Optional[time] = None
-    jornada: Optional[str] = None
+    jornada: Optional[JornadaEnum] = None
     activo: Optional[bool] = None
 
 # OUT
@@ -40,7 +41,7 @@ class AsignacionConsultorioResponseDTO(BaseModel):
     
     hora_inicio: time
     hora_fin: time
-    jornada: str
+    jornada: JornadaEnum
     activo: bool
 
     model_config = ConfigDict(from_attributes=True, populate_by_name=True)

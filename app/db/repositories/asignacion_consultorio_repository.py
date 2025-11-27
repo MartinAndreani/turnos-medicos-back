@@ -17,7 +17,7 @@ class AsignacionConsultorioRepository:
         self.session.refresh(row)
         return row
 
-    def get_overlap(self, id_consultorio, dias_nuevos: List[int], hora_inicio, hora_fin, fecha_inicio, fecha_fin):
+    def get_overlap(self, id_consultorio, dias_nuevos: List[int], hora_inicio, hora_fin, fecha_inicio, fecha_fin, jornada):
         # Nota: Este es el get_overlap que arreglamos antes para la CREACIÓN de agendas
         # (valida choque de arrays)
         return (
@@ -29,7 +29,8 @@ class AsignacionConsultorioRepository:
                 AsignacionConsultorioModel.hora_inicio < hora_fin,
                 AsignacionConsultorioModel.hora_fin > hora_inicio,
                 AsignacionConsultorioModel.fecha_inicio <= fecha_fin,
-                AsignacionConsultorioModel.fecha_fin >= fecha_inicio
+                AsignacionConsultorioModel.fecha_fin >= fecha_inicio,
+                AsignacionConsultorioModel.jornada == jornada
             )
             .first()
         )
@@ -64,3 +65,47 @@ class AsignacionConsultorioRepository:
             AsignacionConsultorioModel.hora_inicio <= start,
             AsignacionConsultorioModel.hora_fin >= end
         ).first()
+    
+
+    def list(self, skip: int = 0, limit: int = 100):
+        rows = (
+            self.session.query(AsignacionConsultorioModel)
+            .filter(AsignacionConsultorioModel.activo == True)
+            .offset(skip)
+            .limit(limit)
+            .all()
+        )
+        return rows
+    
+
+    def get_overlap_update(
+        self, id_consultorio, dias_nuevos, hora_inicio, hora_fin, fecha_inicio, fecha_fin, jornada, id_excluir
+    ):
+        return (
+            self.session.query(AsignacionConsultorioModel)
+            .filter(
+                AsignacionConsultorioModel.id_consultorio == UUID(str(id_consultorio)),
+                AsignacionConsultorioModel.activo == True,
+                AsignacionConsultorioModel.id_asignacion != UUID(str(id_excluir)),
+                AsignacionConsultorioModel.dias_semana.overlap(dias_nuevos),
+                AsignacionConsultorioModel.hora_inicio < hora_fin,
+                AsignacionConsultorioModel.hora_fin > hora_inicio,
+                AsignacionConsultorioModel.fecha_inicio <= fecha_fin,
+                AsignacionConsultorioModel.fecha_fin >= fecha_inicio,
+                AsignacionConsultorioModel.jornada == jornada
+            )
+            .first()
+        )
+    
+
+    def update(self, id_asignacion, data: dict):
+        row = self.session.get(AsignacionConsultorioModel, UUID(str(id_asignacion)))
+        if not row:
+            return None
+
+        for key, value in data.items():
+            setattr(row, key, value)
+
+        self.session.commit()
+        self.session.refresh(row)
+        return row
