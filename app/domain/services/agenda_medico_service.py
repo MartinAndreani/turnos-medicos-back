@@ -35,7 +35,8 @@ class AgendaMedicoService:
             dto.hora_inicio, 
             dto.hora_fin, 
             dto.fecha_inicio, 
-            dto.fecha_fin
+            dto.fecha_fin,
+            dto.jornada
         ):
             raise ValueError("El consultorio está ocupado en esos días y horarios.")
 
